@@ -61,7 +61,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="campaigns/index"
+        name="campaigns"
         options={{
           title: 'Campañas',
           tabBarIcon: ({ focused }) => (
@@ -72,6 +72,7 @@ export default function TabLayout() {
             />
           ),
           tabBarLabelStyle: { color: 'white' },
+          headerShown: false
         }}
       />
       <Tabs.Screen
