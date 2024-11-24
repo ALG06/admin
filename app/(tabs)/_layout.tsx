@@ -7,6 +7,10 @@ import { IconSymbol } from '@/components/ui/IconSymbol';
 import TabBarBackground from '@/components/ui/TabBarBackground';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import Entypo from '@expo/vector-icons/Entypo';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import AntDesign from '@expo/vector-icons/AntDesign';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -20,24 +24,82 @@ export default function TabLayout() {
         tabBarBackground: TabBarBackground,
         tabBarStyle: Platform.select({
           ios: {
-            // Use a transparent background on iOS to show the blur effect
+            backgroundColor: 'black',
             position: 'absolute',
           },
-          default: {},
+          default: {
+            backgroundColor: 'light',
+          },
         }),
       }}>
       <Tabs.Screen
         name="index"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          tabBarIcon: ({ focused }) => (
+            <IconSymbol 
+              size={28} 
+              name="house.fill" 
+              color={focused ? 'grey' : 'white'} // Change color when focused
+            />
+          ),
+          tabBarLabelStyle: { color: 'white' },
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="donations/index"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          title: 'Donaciones',
+          tabBarIcon: ({ focused }) => (
+            <AntDesign 
+              name="heart" 
+              size={24} 
+              color={focused ? 'grey' : 'white'} // Change color when focused
+            />
+          ),
+          tabBarLabelStyle: { color: 'white' },
+        }}
+      />
+      <Tabs.Screen
+        name="campaigns/index"
+        options={{
+          title: 'Campañas',
+          tabBarIcon: ({ focused }) => (
+            <MaterialIcons 
+              name="campaign" 
+              size={24} 
+              color={focused ? 'grey' : 'white'} // Change color when focused
+            />
+          ),
+          tabBarLabelStyle: { color: 'white' },
+        }}
+      />
+      <Tabs.Screen
+        name="donation-points/index"
+        options={{
+          title: 'Puntos',
+          tabBarIcon: ({ focused }) => (
+            <Entypo 
+              name="location-pin" 
+              size={24} 
+              color={focused ? 'grey' : 'white'} // Change color when focused
+            />
+          ),
+          tabBarLabelStyle: { color: 'white' },
+        }}
+      />
+      <Tabs.Screen
+        name="qr-scanner/index"
+        options={{
+          title: 'QR',
+          tabBarIcon: ({ focused }) => (
+            <MaterialCommunityIcons 
+              name="qrcode-scan" 
+              size={24} 
+              color={focused ? 'grey' : 'white'} // Change color when focused
+            />
+          ),
+          tabBarLabelStyle: { color: 'white' },
         }}
       />
     </Tabs>
