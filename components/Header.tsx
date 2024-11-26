@@ -14,7 +14,6 @@ export default function Header({ title, subtitle }: HeaderProps) {
 
     // Determine if the current route is the initial route
     const isInitialRoute = route.name === 'index' || route.name === 'donations/index' || route.name === 'donation-points/index';
-    console.log(route.name)
 
     return (
       <View style={styles.header}>

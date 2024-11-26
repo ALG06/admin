@@ -79,14 +79,14 @@ const CampaignCard = ({ campaign }: { campaign: Campaign }) => {
               <View style={styles.dateContainer}>
                 <MaterialIcons name="event" size={16} color="#666" />
                 <Text style={styles.dateText}>
-                  {new Date(campaign.start_date).toLocaleDateString()}
+                  {new Date(campaign.start_date).toLocaleDateString('en-US', { timeZone: 'UTC' })}
                 </Text>
               </View>
               
               <View style={styles.progressContainer}>
                 <FontAwesome name="calendar" size={16} color="#666" />
                 <Text style={styles.progressText}>
-                  {new Date(campaign.end_date).toLocaleDateString()}
+                  {new Date(campaign.end_date).toLocaleDateString('en-US', { timeZone: 'UTC' })}
                 </Text>
               </View>
             </View>
@@ -121,6 +121,7 @@ export default function Campaigns() {
       setIsLoading(true);
       const response = await axios.get(`${baseURL}/campaigns/list?active=true`);
       setCampaigns(response.data);
+
       setError(null);
     } catch (err) {
       const error = err as Error;
@@ -131,15 +132,34 @@ export default function Campaigns() {
     }
   };
 
-  const handleCreateCampaign = async (newCampaign: { name: string; address: string }) => {
+  const handleCreateCampaign = async (newCampaign: { 
+    description: string; 
+    name: string; 
+    address: string; 
+    active: boolean; 
+    start_date: Date; 
+    end_date: Date 
+  }) => {
     try {
       // Implement actual API call to create campaign
       console.log('Creating new campaign:', newCampaign);
-      
+      await axios.post(`${baseURL}/campaigns/create`, {
+         ...newCampaign,
+         start_date: newCampaign.start_date.toISOString(),
+         end_date: newCampaign.end_date.toISOString()
+       });
+  
       // Optional: Refresh campaigns after creation
       fetchCampaigns();
     } catch (err) {
-      console.error('Error creating campaign:', err);
+      if (axios.isAxiosError(err) && err.response) {
+        // Display server error message
+        const serverError = err.response.data.error;
+        console.error('Server error:', serverError);
+        setError(serverError); // Assuming you have a state to display errors
+      } else {
+        console.error('Error creating campaign:', err);
+      }
     }
   };
 
@@ -169,20 +189,19 @@ export default function Campaigns() {
         {campaigns.map((campaign) => ( 
           <CampaignCard key={campaign.id} campaign={campaign} />
         ))}
-
-        {/* <Pressable 
+      </ScrollView>
+        <Pressable 
           style={styles.fab}
           onPress={() => setIsModalVisible(true)}
         >
           <MaterialIcons name="add" size={24} color="#FFF" />
-        </Pressable> */}
+        </Pressable> 
 
         <CreateCampaignModal
           visible={isModalVisible}
           onClose={() => setIsModalVisible(false)}
           onSubmit={handleCreateCampaign}
         />
-      </ScrollView>
     </GestureHandlerRootView>
   );
 }
@@ -266,7 +285,7 @@ const styles = StyleSheet.create({
   fab: {
     position: 'absolute',
     right: 16,
-    bottom: 100,
+    bottom: 30,
     backgroundColor: '#0a5fb4',
     width: 56,
     height: 56,
