@@ -5,50 +5,30 @@ import { Link } from 'expo-router';
 import { MaterialIcons, FontAwesome } from '@expo/vector-icons';
 import { GestureHandlerRootView, ScrollView, TextInput } from 'react-native-gesture-handler';
 import CreateCampaignModal from '../../../components/CreateCampaignModal'; // Update the import
+import axios from 'axios';
+import { useFocusEffect } from '@react-navigation/native';
 
 
 type Campaign = {
   id: number;
   name: string;
   description: string;
-  location: {
-    city: string;
-    state: string;
-    distance: number;
-  };
-  date: string;
-  status: 'Urgente' | 'Activo' | 'Programado';
-  progress: {
-    current: number;
-    total: number;
-  };
+  address: string;
+  active: boolean;
+  start_date: string;
+  end_date: string;
+  lat: number;
+  lon: number;
+  created_at: string;
 };
 
-const StatusBadge = ({ status }: { status: Campaign['status'] }) => {
+const StatusBadge = ({ active }: { active: boolean }) => {
   const getStatusColor = () => {
-    switch (status) {
-      case 'Urgente':
-        return '#FFEBE9';
-      case 'Activo':
-        return '#E6F4EA';
-      case 'Programado':
-        return '#E8F0FE';
-      default:
-        return '#E8F0FE';
-    }
+    return active ? '#E6F4EA' : '#FFEBE9';
   };
 
   const getStatusTextColor = () => {
-    switch (status) {
-      case 'Urgente':
-        return '#D93025';
-      case 'Activo':
-        return '#137333';
-      case 'Programado':
-        return '#1A73E8';
-      default:
-        return '#1A73E8';
-    }
+    return active ? '#137333' : '#D93025';
   };
 
   return (
@@ -62,143 +42,145 @@ const StatusBadge = ({ status }: { status: Campaign['status'] }) => {
         styles.statusText,
         { color: getStatusTextColor() }
       ]}>
-        {status}
+        {active ? 'Activo' : 'Inactivo'}
       </Text>
     </View>
   );
 };
 
-const CampaignCard = ({ campaign }: { campaign: Campaign }) => (
-  <Link
-    href={`./campaigns/${campaign.id}`}
-    asChild
-  >
-    <Pressable style={styles.card}>
-      <View style={styles.cardContent}>
-        <View style={styles.mainInfo}>
-          <Text style={styles.title}>{campaign.name}</Text>
-          <Text style={styles.description} numberOfLines={2}>
-            {campaign.description}
-          </Text>
-          
-          <View style={styles.locationContainer}>
-            <MaterialIcons name="location-on" size={16} color="#666" />
-            <Text style={styles.locationText}>
-              {campaign.location.city}, {campaign.location.state} ({campaign.location.distance.toFixed(1)}km)
+const CampaignCard = ({ campaign }: { campaign: Campaign }) => {
+  // Calculate distance (you might want to replace this with actual distance calculation)
+  const calculateDistance = () => {
+    // Placeholder distance calculation - replace with actual logic if needed
+    return 0;
+  };
+
+  return (
+    <Link
+      href={`./campaigns/${campaign.id}`}
+      asChild
+    >
+      <Pressable style={styles.card}>
+        <View style={styles.cardContent}>
+          <View style={styles.mainInfo}>
+            <Text style={styles.title}>{campaign.name}</Text>
+            <Text style={styles.description} numberOfLines={2}>
+              {campaign.description}
             </Text>
-          </View>
-          
-          <View style={styles.bottomInfo}>
-            <View style={styles.dateContainer}>
-              <MaterialIcons name="event" size={16} color="#666" />
-              <Text style={styles.dateText}>{campaign.date}</Text>
-            </View>
             
-            <View style={styles.progressContainer}>
-              <FontAwesome name="users" size={16} color="#666" />
-              <Text style={styles.progressText}>
-                {campaign.progress.current}/{campaign.progress.total}
+            <View style={styles.locationContainer}>
+              <MaterialIcons name="location-on" size={16} color="#666" />
+              <Text style={styles.locationText}>
+                {campaign.address}
               </Text>
             </View>
+            
+            <View style={styles.bottomInfo}>
+              <View style={styles.dateContainer}>
+                <MaterialIcons name="event" size={16} color="#666" />
+                <Text style={styles.dateText}>
+                  {new Date(campaign.start_date).toLocaleDateString()}
+                </Text>
+              </View>
+              
+              <View style={styles.progressContainer}>
+                <FontAwesome name="calendar" size={16} color="#666" />
+                <Text style={styles.progressText}>
+                  {new Date(campaign.end_date).toLocaleDateString()}
+                </Text>
+              </View>
+            </View>
+          </View>
+          
+          <View style={styles.rightContent}>
+            <StatusBadge active={campaign.active} />
           </View>
         </View>
-        
-        <View style={styles.rightContent}>
-          <StatusBadge status={campaign.status} />
-        </View>
-      </View>
-    </Pressable>
-  </Link>
-);
+      </Pressable>
+    </Link>
+  );
+};
 
 export default function Campaigns() {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
-  const [isModalVisible, setIsModalVisible] = useState(false); // Add this line
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    // Mock data that matches the image
-    const mockCampaigns: Campaign[] = [
-      {
-        id: 1,
-        name: 'Ayuda por Inundaciones',
-        description: 'Asistencia inmediata para damnificados',
-        location: {
-          city: 'Tlaquepaque',
-          state: 'Jalisco',
-          distance: 2651.0,
-        },
-        date: '03-11-2024',
-        status: 'Urgente',
-        progress: {
-          current: 75,
-          total: 100,
-        },
-      },
-      {
-        id: 2,
-        name: 'Hospital Infantil de Zapopan',
-        description: 'Apoyo para equipamiento médico',
-        location: {
-          city: 'Zapopan',
-          state: 'Jalisco',
-          distance: 2638.8,
-        },
-        date: '15-12-2024',
-        status: 'Activo',
-        progress: {
-          current: 150,
-          total: 300,
-        },
-      },
-      // Add more campaigns as needed
-    ];
+  useFocusEffect(
+   React.useCallback(() => {
+     fetchCampaigns();
+   }, [])
+  );
 
-    setCampaigns(mockCampaigns);
-  }, []);
+  // Determine the base URL based on the platform
+  const baseURL = Platform.OS === 'ios' ? 'http://127.0.0.1:5000' : 'http://10.0.2.2:5000';
 
-  const handleCreateCampaign = (newCampaign: { name: string; address: string }) => {
-    // Here you would typically make an API call to create the campaign
-    console.log('Creating new campaign:', newCampaign);
-    // For demo purposes, we'll just add it to the local state
-    const campaign: Campaign = {
-      id: campaigns.length + 1,
-      name: newCampaign.name,
-      description: '',
-      location: {
-        city: 'Nueva Ciudad',
-        state: 'Estado',
-        distance: 0,
-      },
-      date: new Date().toLocaleDateString(),
-      status: 'Programado',
-      progress: {
-        current: 0,
-        total: 100,
-      },
-    };
-    setCampaigns([...campaigns, campaign]);
+  const fetchCampaigns = async () => {
+    try {
+      setIsLoading(true);
+      const response = await axios.get(`${baseURL}/campaigns/list?active=true`);
+      setCampaigns(response.data);
+      setError(null);
+    } catch (err) {
+      const error = err as Error;
+      console.error('Error fetching campaigns:', error.message);
+      setError('Failed to load campaigns');
+    } finally {
+      setIsLoading(false);
+    }
   };
+
+  const handleCreateCampaign = async (newCampaign: { name: string; address: string }) => {
+    try {
+      // Implement actual API call to create campaign
+      console.log('Creating new campaign:', newCampaign);
+      
+      // Optional: Refresh campaigns after creation
+      fetchCampaigns();
+    } catch (err) {
+      console.error('Error creating campaign:', err);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <View style={styles.container}>
+        <Text>Cargando campañas...</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.errorText}>{error}</Text>
+        <Pressable onPress={fetchCampaigns}>
+          <Text>Reintentar</Text>
+        </Pressable>
+      </View>
+    );
+  }
 
   return (
     <GestureHandlerRootView style={{flex: 1}}>
       <View style={styles.container}>
-      <Header title="Campañas de Donación" subtitle='Punto Donativo'/>
+        <Header title="Campañas de Donación" subtitle='Punto Donativo'/>
       
-      {campaigns.map((campaign) => ( 
-        <CampaignCard key={campaign.id} campaign={campaign} />
-      ))}
+        {campaigns.map((campaign) => ( 
+          <CampaignCard key={campaign.id} campaign={campaign} />
+        ))}
 
-      <Pressable 
+        <Pressable 
           style={styles.fab}
           onPress={() => setIsModalVisible(true)}
         >
           <MaterialIcons name="add" size={24} color="#FFF" />
-      </Pressable>
+        </Pressable>
 
-      {/* Create Campaign Modal */}
-      <CreateCampaignModal
-        visible={isModalVisible}
-        onClose={() => setIsModalVisible(false)}
+        <CreateCampaignModal
+          visible={isModalVisible}
+          onClose={() => setIsModalVisible(false)}
           onSubmit={handleCreateCampaign}
         />
       </View>
@@ -297,5 +279,10 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 4,
-  }
+  },
+  errorText: {
+    color: 'red',
+    marginBottom: 10,
+    textAlign: 'center'
+  },
 });
