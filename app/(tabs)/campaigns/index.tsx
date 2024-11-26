@@ -8,20 +8,6 @@ import CreateCampaignModal from '../../../components/CreateCampaignModal'; // Up
 import axios from 'axios';
 import { useFocusEffect } from '@react-navigation/native';
 
-
-type Campaign = {
-  id: number;
-  name: string;
-  description: string;
-  address: string;
-  active: boolean;
-  start_date: string;
-  end_date: string;
-  lat: number;
-  lon: number;
-  created_at: string;
-};
-
 const StatusBadge = ({ active }: { active: boolean }) => {
   const getStatusColor = () => {
     return active ? '#E6F4EA' : '#FFEBE9';

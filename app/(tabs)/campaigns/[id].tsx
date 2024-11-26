@@ -2,6 +2,8 @@ import { View, Text, Button, StyleSheet, Platform } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import axios from 'axios';
+import CreateCampaignModal from '@/components/CreateCampaignModal';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 type Campaign = {
   id: number;
@@ -21,6 +23,8 @@ export default function DetailedCampaign() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const [isModalVisible, setModalVisible] = useState(false);
+
 
   useEffect(() => {
     fetchCampaignDetails();
@@ -41,8 +45,32 @@ export default function DetailedCampaign() {
     }
   };
 
+  const handleUpdateCampaign = async (updatedCampaignData: { 
+    description: string; 
+    name: string; 
+    address: string; 
+    active: boolean; 
+    start_date: Date; 
+    end_date: Date 
+  }) => {
+    console.log(updatedCampaignData)
+    try {
+      await axios.put(`${baseURL}/campaigns/update?id=${id}`, {
+        ...updatedCampaignData,
+        start_date: updatedCampaignData.start_date.toISOString(),
+        end_date: updatedCampaignData.end_date.toISOString()
+      });
+      setModalVisible(false);
+      fetchCampaignDetails(); // Refresh campaign details after update
+    } catch (err) {
+      console.error('Error updating campaign:', err);
+      alert('Failed to update campaign');
+    }
+  };
+  
+
   const handleEdit = () => {
-    alert('Edit functionality goes here!');
+    setModalVisible(true);
   };
 
   const handleDelete = async () => {
@@ -81,7 +109,7 @@ export default function DetailedCampaign() {
   }
 
   return (
-    <View style={styles.container}>
+    <GestureHandlerRootView style={styles.container}>
       <Text style={styles.title}>{campaign.name}</Text>
       <Text style={styles.details}>{campaign.description}</Text>
       <Text style={styles.details}>Dirección: {campaign.address}</Text>
@@ -92,7 +120,13 @@ export default function DetailedCampaign() {
         <Button title="Editar" onPress={handleEdit} />
         <Button title="Eliminar" onPress={handleDelete} color="red" />
       </View>
-    </View>
+       <CreateCampaignModal
+        visible={isModalVisible}
+        onClose={() => setModalVisible(false)}
+        onSubmit={handleUpdateCampaign} 
+        campaign={campaign}
+      />
+    </GestureHandlerRootView>
   );
 }
 

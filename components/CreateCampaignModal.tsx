@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, Pressable, Modal, KeyboardAvoidingView, Platform, Alert } from 'react-native';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ScrollView, Switch, TextInput, TouchableWithoutFeedback} from 'react-native-gesture-handler';
 import { MaterialIcons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -7,11 +7,13 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 const CreateCampaignModal = ({
   visible,
   onClose,
-  onSubmit
+  onSubmit,
+  campaign
 }: {
   visible: boolean;
   onClose: () => void;
   onSubmit: (campaign: { description: string; name: string; address: string; active: boolean; start_date: Date; end_date: Date }) => void;
+  campaign?: Campaign
 }) => {
   const [name, setName] = useState('');
   const [address, setAddress] = useState('');
@@ -22,12 +24,18 @@ const CreateCampaignModal = ({
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);
   const [showEndDatePicker, setShowEndDatePicker] = useState(false);
 
+  useEffect(() => {
+    if (campaign) {
+      setName(campaign.name);
+      setAddress(campaign.address);
+      setDescription(campaign.description);
+      setActive(campaign.active);
+      setStartDate(new Date(campaign.start_date));
+      setEndDate(new Date(campaign.end_date));
+    }
+  }, [campaign]);
+
   const handleSubmit = () => {
-    const startDateOnly = new Date(startDate.setHours(0, 0, 0, 0));
-    const endDateOnly = new Date(endDate.setHours(0, 0, 0, 0));
-  
-    console.log(endDate)
-    console.log(startDate)
     if (endDate < startDate) {
       Alert.alert(
         "Fecha inválida",
