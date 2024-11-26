@@ -81,7 +81,7 @@ export default function DonationScreen() {
 
   return (
     <View style={styles.container}>
-        <Header title='Donaciones' subtitle='Punto Donativo'/>
+      <Header title='Donaciones' subtitle='Punto Donativo'/>
         <TouchableOpacity 
           onPress={() => setShowActive(!showActive)}
           style={styles.toggleButton}

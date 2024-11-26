@@ -164,33 +164,32 @@ export default function Campaigns() {
 
   return (
     <GestureHandlerRootView style={{flex: 1}}>
-      <View style={styles.container}>
-        <Header title="Campañas de Donación" subtitle='Punto Donativo'/>
-      
+      <Header title='Campañas' subtitle='Punto Donativo'/>
+      <ScrollView contentContainerStyle={styles.container}>      
         {campaigns.map((campaign) => ( 
           <CampaignCard key={campaign.id} campaign={campaign} />
         ))}
 
-        <Pressable 
+        {/* <Pressable 
           style={styles.fab}
           onPress={() => setIsModalVisible(true)}
         >
           <MaterialIcons name="add" size={24} color="#FFF" />
-        </Pressable>
+        </Pressable> */}
 
         <CreateCampaignModal
           visible={isModalVisible}
           onClose={() => setIsModalVisible(false)}
           onSubmit={handleCreateCampaign}
         />
-      </View>
+      </ScrollView>
     </GestureHandlerRootView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     padding: 16,
     backgroundColor: '#fff',
   },

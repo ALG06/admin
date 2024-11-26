@@ -1,14 +1,24 @@
-import { View, Text } from 'react-native'
-import React from 'react'
-import { Stack } from 'expo-router'
+import React from 'react';
+import { Stack } from 'expo-router';
+import Header from '@/components/Header'; // Ensure the path is correct
 
 export default function _layout() {
   return (
     <Stack>
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="[id]" options={{
-            title: "Campaña"
-        }}/>
+      <Stack.Screen 
+        name="index" 
+        options={{
+          headerShown: false
+          //header: () => <Header title="Campañas de Donación" subtitle="Punto Donativo" />
+        }} 
+      />
+      <Stack.Screen 
+        name="[id]" 
+        options={{
+          title: "Campaña",
+          header: () => <Header title="Campaña" subtitle="Detalles" />
+        }} 
+      />
     </Stack>
-  )
+  );
 }

@@ -4,6 +4,8 @@ import Header from '@/components/Header'
 
 export default function DonationPoints() {
   return (
-    <Header title='Puntos BAMX' subtitle='Punto Donativo' />
+    <View>
+      <Header title='Puntos BAMX' subtitle='Punto Donativo'/>
+    </View>
   )
 }

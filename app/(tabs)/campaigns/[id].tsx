@@ -47,7 +47,7 @@ export default function DetailedCampaign() {
 
   const handleDelete = async () => {
     try {
-      await axios.delete(`${baseURL}/campaigns/?id=${id}`);
+      await axios.delete(`${baseURL}/campaigns/delete?id=${id}`);
       router.push('../'); // Redirect to the campaign list after deletion
     } catch (err) {
       console.error('Error deleting campaign:', err);
