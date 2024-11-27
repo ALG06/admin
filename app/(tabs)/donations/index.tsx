@@ -1,138 +1,104 @@
 // donations/index.tsx
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
-import { Archive, Clock, Scale, Calendar } from 'lucide-react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet, ActivityIndicator, Platform } from 'react-native';
+import { Archive, Clock } from 'lucide-react-native';
 import Header from '@/components/Header';
+import axios from 'axios';
+import { useFocusEffect } from '@react-navigation/native';
+import { Link } from 'expo-router';
 
-// Mock data structure based on your DB schema
-const mockDonations = [
-  {
-    ID_donacion: 1,
-    ID_donante: 1,
-    ID_punto: 1,
-    ID_calendario: 1,
-    Fecha: '11-11-2024',
-    Hora: '14:00',
-    Estado: true, // true for active, false for completed
-    Tipo: 'Alimento',
-    alimento: {
-      ID_alimento: 1,
-      Nombre_alimento: 'Arroz',
-      Cantidad: 4.00,
-      Categoria: 'Granos'
-    }
-  },
-  {
-    ID_donacion: 2,
-    ID_donante: 2,
-    ID_punto: 1,
-    ID_calendario: 2,
-    Fecha: '10-11-2024',
-    Hora: '15:00',
-    Estado: true,
-    Tipo: 'Alimento',
-    alimento: {
-      ID_alimento: 2,
-      Nombre_alimento: 'Atún',
-      Cantidad: 2.00,
-      Categoria: 'Enlatados'
-    }
-  },
-  {
-    ID_donacion: 3,
-    ID_donante: 3,
-    ID_punto: 2,
-    ID_calendario: 3,
-    Fecha: '11-11-2024',
-    Hora: '10:00',
-    Estado: false,
-    Tipo: 'Alimento',
-    alimento: {
-      ID_alimento: 3,
-      Nombre_alimento: 'Frijol',
-      Cantidad: 7.00,
-      Categoria: 'Granos'
-    }
-  },
-  {
-    ID_donacion: 4,
-    ID_donante: 4,
-    ID_punto: 2,
-    ID_calendario: 4,
-    Fecha: '10-11-2024',
-    Hora: '09:00',
-    Estado: false,
-    Tipo: 'Alimento',
-    alimento: {
-      ID_alimento: 4,
-      Nombre_alimento: 'Gitomate',
-      Cantidad: 20.00,
-      Categoria: 'Verduras'
-    }
-  }
-];
-
-export default function DonationScreen() {
-  const [showActive, setShowActive] = useState(true);
-  
-  const filteredDonations = mockDonations.filter(
-    donation => donation.Estado === showActive
-  );
+const StatusBadge = ({ active }: { active: boolean }) => {
+  const getStatusColor = () => (active ? '#FFEBE9' : '#E6F4EA');
+  const getStatusTextColor = () => (active ? '#D93025' : '#137333');
 
   return (
-    <View style={styles.container}>
-      <Header title='Donaciones' subtitle='Punto Donativo'/>
-        <TouchableOpacity 
-          onPress={() => setShowActive(!showActive)}
-          style={styles.toggleButton}
-        >
-          {showActive ? (
-            <Clock size={20} color="#EC4899" />
-          ) : (
-            <Archive size={20} color="#EC4899" />
-          )}
-          <Text style={styles.toggleText}>
-            {showActive ? 'Donaciones Activas' : 'Donaciones Pasadas'}
-          </Text>
-        </TouchableOpacity>
-
-      <ScrollView style={styles.scrollView}>
-        {filteredDonations.map((donation) => (
-          <View key={donation.ID_donacion} style={styles.card}>
-            <View style={styles.cardHeader}>
-              <Text style={styles.cardTitle}>
-                {donation.alimento.Nombre_alimento}
-              </Text>
-              <View style={[
-                styles.badge,
-                donation.Estado ? styles.activeBadge : styles.completedBadge
-              ]}>
-                <Text style={[
-                  styles.badgeText,
-                  donation.Estado ? styles.activeText : styles.completedText
-                ]}>
-                  {donation.Estado ? 'Activa' : 'Completada'}
-                </Text>
-              </View>
-            </View>
-            
-            <View style={styles.cardFooter}>
-              <Scale size={16} color="#6B7280" />
-              <Text style={styles.footerText}>
-                {donation.alimento.Cantidad.toFixed(2)} kg
-              </Text>
-              <Text style={styles.bullet}>•</Text>
-              <Calendar size={16} color="#6B7280" />
-              <Text style={styles.footerText}>
-                {donation.Fecha}
-              </Text>
-            </View>
-          </View>
-        ))}
-      </ScrollView>
+    <View style={[styles.statusBadge, { backgroundColor: getStatusColor() }]}>
+      <Text style={[styles.statusText, { color: getStatusTextColor() }]}>
+        {active ? 'Pendiente' : 'Completada'}
+      </Text>
     </View>
   );
-}
+};
+
+const DonationScreen = () => {
+  const [donations, setDonations] = useState<Donation[]>([]);
+  const [showPending, setShowPending] = useState(true);
+  const [loading, setLoading] = useState(true);
+
+  const baseURL = Platform.OS === 'ios' ? 'http://192.168.100.10:5000' : 'http://10.0.2.2:5000';
+
+  // Fetch data from the endpoint
+  useFocusEffect(
+    React.useCallback(() => {
+      const fetchDonations = async () => {
+        try {
+          const response = await axios.get(`${baseURL}/donations/list`);
+          setDonations(response.data);
+        } catch (error) {
+          console.error('Error fetching donations:', error);
+        } finally {
+          setLoading(false);
+        }
+      };
+  
+      fetchDonations();
+    }, [])
+  );
+
+  // Filter donations based on pending status
+  const filteredDonations = donations.filter(
+    (donation) => donation.pending === showPending
+  );
+
+  if (loading) {
+    return (
+      <View style={styles.loaderContainer}>
+        <ActivityIndicator size="large" color="#EC4899" />
+      </View>
+    );
+  }
+
+  return (
+    <View style={[styles.container, {paddingBottom: 100}]}>
+      <Header title="Donaciones" subtitle="Punto Donativo" />
+      
+      {/* Toggle Button */}
+      <TouchableOpacity 
+        onPress={() => setShowPending(!showPending)}
+        style={styles.toggleButton}
+      >
+        {showPending ? (
+          <Clock size={20} color="#EC4899" />
+        ) : (
+          <Archive size={20} color="#EC4899" />
+        )}
+        <Text style={styles.toggleText}>
+          {showPending ? 'Donaciones Pendientes' : 'Donaciones Pasadas'}
+        </Text>
+      </TouchableOpacity>
+
+      {/* Donations List */}
+      <ScrollView style={styles.scrollView}>
+  {filteredDonations.map((donation) => (
+    <Link
+      key={donation.id} 
+      href={`./donations/${donation.id}`} 
+      asChild
+    >
+      <TouchableOpacity style={styles.card}>
+        <Text style={styles.cardTitle}>ID: {donation.id}</Text>
+        <Text style={styles.cardText}>Fecha: {donation.date}</Text>
+        <View style={styles.statusRow}>
+            <Text style={styles.cardText}>Estado: </Text>
+            <StatusBadge active={donation.pending} />
+          </View>
+      </TouchableOpacity>
+    </Link>
+  ))}
+</ScrollView>
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -143,7 +109,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 16,
-    paddingLeft: 16
+    paddingLeft: 16,
   },
   toggleText: {
     marginLeft: 8,
@@ -168,47 +134,34 @@ const styles = StyleSheet.create({
     shadowRadius: 1,
     elevation: 1,
   },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-  },
   cardTitle: {
     fontSize: 16,
     fontWeight: '600',
+    marginBottom: 4,
   },
-  badge: {
-    paddingHorizontal: 12,
+  cardText: {
+    fontSize: 14,
+    color: '#6B7280',
+  },
+  loaderContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  statusBadge: {
+    paddingHorizontal: 8,
     paddingVertical: 4,
-    borderRadius: 16,
+    borderRadius: 4,
   },
-  activeBadge: {
-    backgroundColor: '#DBEAFE',
-  },
-  completedBadge: {
-    backgroundColor: '#F3F4F6',
-  },
-  badgeText: {
+  statusText: {
     fontSize: 12,
     fontWeight: '500',
   },
-  activeText: {
-    color: '#2563EB',
-  },
-  completedText: {
-    color: '#4B5563',
-  },
-  cardFooter: {
+  statusRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 8,
-  },
-  footerText: {
-    marginLeft: 4,
-    color: '#6B7280',
-  },
-  bullet: {
-    marginHorizontal: 8,
-    color: '#9CA3AF',
+    marginTop: 10,
   },
 });
+
+export default DonationScreen;

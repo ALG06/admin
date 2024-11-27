@@ -29,7 +29,7 @@ export default function QRScanner() {
   const fetchDonationDetails = async (id: string) => {
     try {  
       setScannedData(id)
-      const response = await axios.get(`${baseURL}/donations/details/${id}`);
+      const response = await axios.get(`${baseURL}/donations/details/${id}/true`);
       setDonationDetails(response.data);
       console.log(donationDetails)
       setModalVisible(true);  

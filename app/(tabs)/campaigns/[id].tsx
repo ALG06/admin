@@ -1,4 +1,4 @@
-import { View, Text, Button, StyleSheet, Platform } from 'react-native';
+import { View, Text, Button, StyleSheet, Platform, Alert } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import axios from 'axios';
@@ -74,13 +74,29 @@ export default function DetailedCampaign() {
   };
 
   const handleDelete = async () => {
-    try {
-      await axios.delete(`${baseURL}/campaigns/delete?id=${id}`);
-      router.push('../'); // Redirect to the campaign list after deletion
-    } catch (err) {
-      console.error('Error deleting campaign:', err);
-      alert('Failed to delete campaign');
-    }
+    Alert.alert(
+      'Confirmación',
+      'Esta campaña será eliminada.',
+      [
+        {
+          text: 'Cancelar',
+          style: 'cancel',
+        },
+        {
+          text: 'Confirmar',
+          onPress: async () => {
+            try {
+              await axios.delete(`${baseURL}/campaigns/delete?id=${id}`);
+              router.push('../'); // Redirect to the campaign list after deletion
+            } catch (err) {
+              console.error('Error deleting campaign:', err);
+              alert('Failed to delete campaign');
+            }
+          },
+        },
+      ],
+      { cancelable: true }
+    );
   };
 
   if (isLoading) {

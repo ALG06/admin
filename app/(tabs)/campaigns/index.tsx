@@ -26,13 +26,13 @@ const StatusBadge = ({ active }: { active: boolean }) => {
     >
       <Text style={[
         styles.statusText,
-        { color: getStatusTextColor() }
-      ]}>
-        {active ? 'Activo' : 'Inactivo'}
-      </Text>
-    </View>
-  );
-};
+          { color: getStatusTextColor() }
+        ]}>
+          {active ? 'Activo' : 'Inactivo'}
+        </Text>
+      </View>
+    );
+  };
 
 const CampaignCard = ({ campaign }: { campaign: Campaign }) => {
   // Calculate distance (you might want to replace this with actual distance calculation)
@@ -105,7 +105,7 @@ export default function Campaigns() {
   const fetchCampaigns = async () => {
     try {
       setIsLoading(true);
-      const response = await axios.get(`${baseURL}/campaigns/list?active=true`);
+      const response = await axios.get(`${baseURL}/campaigns/list`);
       setCampaigns(response.data);
 
       setError(null);
@@ -171,7 +171,7 @@ export default function Campaigns() {
   return (
     <GestureHandlerRootView style={{flex: 1}}>
       <Header title='Campañas' subtitle='Punto Donativo'/>
-      <ScrollView contentContainerStyle={styles.container}>      
+      <ScrollView contentContainerStyle={[styles.container, { paddingBottom: 80 }]}>      
         {campaigns.map((campaign) => ( 
           <CampaignCard key={campaign.id} campaign={campaign} />
         ))}
@@ -195,13 +195,13 @@ export default function Campaigns() {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    padding: 16,
+    padding: 18,
     backgroundColor: '#fff',
   },
   card: {
     backgroundColor: '#fff',
     borderRadius: 8,
-    padding: 16,
+    padding: 10,
     marginBottom: 16,
     borderWidth: 1,
     borderColor: '#E0E0E0',
