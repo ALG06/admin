@@ -7,20 +7,19 @@ export default function DonationDetail() {
   const [donationDetails, setDonationDetails] = useState<CompleteDonation | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const baseURL = Platform.OS === 'ios' ? 'http://192.168.100.10:5000' : 'http://10.0.2.2:5000';
+  const baseURL = Platform.OS === 'ios' ? 'http://192.168.68.102:5000' : 'http://10.0.2.2:5000';
 
 
   useEffect(() => {
     const fetchDonationDetails = async () => {
       try {
+        console.log('Fetching from:', `${baseURL}/donations/details/${id}`);
         const response = await fetch(`${baseURL}/donations/details/${id}`);
         const data = await response.json();
+        console.log('Response:', data);
         setDonationDetails(data);
-        
       } catch (error) {
-        console.error('Error fetching donation details:', error);
-      } finally {
-        setLoading(false);
+        console.error('Full error:', error);
       }
     };
 
