@@ -100,7 +100,7 @@ export default function Campaigns() {
   );
 
   // Determine the base URL based on the platform
-  const baseURL = Platform.OS === 'ios' ? 'http://127.0.0.1:5000' : 'http://10.0.2.2:5000';
+  const baseURL = Platform.OS === 'ios' ? 'http://192.168.100.10:5000' : 'http://10.0.2.2:5000';
 
   const fetchCampaigns = async () => {
     try {
@@ -180,7 +180,7 @@ export default function Campaigns() {
           style={styles.fab}
           onPress={() => setIsModalVisible(true)}
         >
-          <MaterialIcons name="add" size={24} color="#FFF" />
+          <MaterialIcons name="add" size={34} color="#FFF" />
         </Pressable> 
 
         <CreateCampaignModal
@@ -271,14 +271,14 @@ const styles = StyleSheet.create({
   fab: {
     position: 'absolute',
     right: 16,
-    bottom: 30,
+    bottom: 100,
     backgroundColor: '#0a5fb4',
-    width: 56,
-    height: 56,
+    width: 68,
+    height: 68,
     borderRadius: 28,
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 4,
+    elevation: 10,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,

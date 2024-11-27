@@ -80,7 +80,9 @@ const CreateCampaignModal = ({
       >
         <View style={styles.modalContent}>
           <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Nueva Campaña</Text>
+            <Text style={styles.modalTitle}>
+              {campaign ? 'Actualizar Campaña' : 'Nueva Campaña'}
+            </Text>
             <Pressable onPress={onClose} style={styles.closeButton}>
               <MaterialIcons name="close" size={24} color="#666" />
             </Pressable>
@@ -179,7 +181,9 @@ const CreateCampaignModal = ({
               onPress={handleSubmit}
               disabled={!name || !address || !description || !startDate || !endDate}
             >
-              <Text style={styles.submitButtonText}>Crear Campaña</Text>
+              <Text style={styles.submitButtonText}>
+                {campaign ? 'Actualizar Campaña' : 'Crear Campaña'}
+              </Text>
             </Pressable>
             </View>
           </ScrollView>

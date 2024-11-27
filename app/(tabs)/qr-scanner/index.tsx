@@ -11,13 +11,65 @@ import {
   Pressable,
   Alert,
 } from "react-native";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Overlay } from "../../../components/Overlay";
+import DonationDetailsModal from "../../../components/DonationDetailsModal";
+import axios from "axios";
 
 export default function QRScanner() {
   const [permission, requestPermission] = useCameraPermissions();
   const qrLock = useRef(false);
   const appState = useRef(AppState.currentState);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [donationDetails, setDonationDetails] = useState(null);
+  const [scannedData, setScannedData] = useState<string | null>(null);
+
+  const baseURL = Platform.OS === 'ios' ? 'http://192.168.100.10:5000' : 'http://10.0.2.2:5000';
+  
+  const fetchDonationDetails = async (id: string) => {
+    try {  
+      setScannedData(id)
+      const response = await axios.get(`${baseURL}/donations/details/${id}`);
+      setDonationDetails(response.data);
+      console.log(donationDetails)
+      setModalVisible(true);  
+    } catch (error) {    
+      Alert.alert(
+        "Error",
+        "No se pudo obtener los detalles de la donación, la donación no existe o ya fue confirmada",
+      );  
+      console.error(error);
+    }  
+  };
+
+/*   useEffect(() => {
+    // Simulate fetching donation details when the component mounts
+    const simulateFetch = async () => {
+      const simulatedId = "3"; // Replace with a test ID
+      await fetchDonationDetails(simulatedId);
+    };
+
+    simulateFetch();
+  }, []); */
+
+  const handleConfirmDonation = async (id: string) => {
+    setModalVisible(false);
+    try {
+        await axios.put(`${baseURL}/donations/update`, {
+        id: id,
+        pending: false
+      });
+      Alert.alert("Éxito", "Donación confirmada");
+    } catch (error) {
+      Alert.alert("Error", "No se pudo actualizar la donación");
+      console.error(error);
+    }
+  };
+
+  const handleRejectDonation = () => {  
+    setModalVisible(false);
+    Alert.alert("Información", "Donación rechazada");
+  };
 
   useEffect(() => {
     const subscription = AppState.addEventListener("change", (nextAppState) => {
@@ -80,14 +132,25 @@ export default function QRScanner() {
         onBarcodeScanned={({ data }) => {
           if (data && !qrLock.current) {
             qrLock.current = true;
-            console.log(data); // Log the QR code content to the console
+            console.log(data);
+            setScannedData(data); 
+            fetchDonationDetails(data); // Log the QR code content to the console
             setTimeout(() => {
               qrLock.current = false; // Reset qrLock after logging
-            }, 500);
+            }, 1200);
           }
         }}
       />
       <Overlay />
+
+      <DonationDetailsModal
+        visible={modalVisible}  
+        onClose={() => setModalVisible(false)}
+        onConfirm={() => scannedData ? handleConfirmDonation(scannedData) : null}
+        onReject={handleRejectDonation}
+        donationDetails={donationDetails}
+      />
+
     </SafeAreaView>
   );
 }

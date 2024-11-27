@@ -30,7 +30,7 @@ export default function DetailedCampaign() {
     fetchCampaignDetails();
   }, [id]);
 
-  const baseURL = Platform.OS === 'ios' ? 'http://127.0.0.1:5000' : 'http://10.0.2.2:5000';
+  const baseURL = Platform.OS === 'ios' ? 'http://192.168.100.10:5000' : 'http://10.0.2.2:5000';
   const fetchCampaignDetails = async () => {
     try {
       setIsLoading(true);
