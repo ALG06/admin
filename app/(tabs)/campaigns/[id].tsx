@@ -4,6 +4,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import axios from 'axios';
 import CreateCampaignModal from '@/components/CreateCampaignModal';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { BASE_URL } from '@/config';
 
 type Campaign = {
   id: number;
@@ -27,14 +28,13 @@ export default function DetailedCampaign() {
 
 
   useEffect(() => {
-    fetchCampaignDetails();
+    fetchCampaignDetails()
   }, [id]);
 
-  const baseURL = Platform.OS === 'ios' ? 'http://192.168.100.10:5000' : 'http://10.0.2.2:5000';
   const fetchCampaignDetails = async () => {
     try {
       setIsLoading(true);
-      const response = await axios.get(`${baseURL}/campaigns/list?id=${id}`);
+      const response = await axios.get(`${BASE_URL}/campaigns/list?id=${id}`);
       setCampaign(response.data[0]); // Assuming the API returns a single campaign object
       setError(null);
     } catch (err) {
@@ -55,7 +55,7 @@ export default function DetailedCampaign() {
   }) => {
     console.log(updatedCampaignData)
     try {
-      await axios.put(`${baseURL}/campaigns/update?id=${id}`, {
+      await axios.put(`${BASE_URL}/campaigns/update?id=${id}`, {
         ...updatedCampaignData,
         start_date: updatedCampaignData.start_date.toISOString(),
         end_date: updatedCampaignData.end_date.toISOString()
@@ -86,7 +86,7 @@ export default function DetailedCampaign() {
           text: 'Confirmar',
           onPress: async () => {
             try {
-              await axios.delete(`${baseURL}/campaigns/delete?id=${id}`);
+              await axios.delete(`${BASE_URL}/campaigns/delete?id=${id}`);
               router.push('../'); // Redirect to the campaign list after deletion
             } catch (err) {
               console.error('Error deleting campaign:', err);

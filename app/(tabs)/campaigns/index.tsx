@@ -7,6 +7,7 @@ import { GestureHandlerRootView, ScrollView, TextInput } from 'react-native-gest
 import CreateCampaignModal from '../../../components/CreateCampaignModal'; // Update the import
 import axios from 'axios';
 import { useFocusEffect } from '@react-navigation/native';
+import { BASE_URL } from '@/config';
 
 const StatusBadge = ({ active }: { active: boolean }) => {
   const getStatusColor = () => {
@@ -99,13 +100,10 @@ export default function Campaigns() {
    }, [])
   );
 
-  // Determine the base URL based on the platform
-  const baseURL = Platform.OS === 'ios' ? 'http://192.168.100.10:5000' : 'http://10.0.2.2:5000';
-
   const fetchCampaigns = async () => {
     try {
       setIsLoading(true);
-      const response = await axios.get(`${baseURL}/campaigns/list`);
+      const response = await axios.get(`${BASE_URL}/campaigns/list`);
       setCampaigns(response.data);
 
       setError(null);
@@ -129,7 +127,7 @@ export default function Campaigns() {
     try {
       // Implement actual API call to create campaign
       console.log('Creating new campaign:', newCampaign);
-      await axios.post(`${baseURL}/campaigns/create`, {
+      await axios.post(`${BASE_URL}/campaigns/create`, {
          ...newCampaign,
          start_date: newCampaign.start_date.toISOString(),
          end_date: newCampaign.end_date.toISOString()

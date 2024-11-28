@@ -3,6 +3,9 @@
     "name": "adminBAMX",
     "slug": "adminBAMX",
     "version": "1.0.0",
+    "extra": {
+      "GOOGLE_PLACES_API_KEY": "AIzaSyBcmOKJvs4XSHciAj0wDS3LT4GWH9ad5HA"
+    },
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",

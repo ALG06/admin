@@ -1,32 +1,28 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator, ScrollView, Platform } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
-
+import { BASE_URL } from '@/config';
 export default function DonationDetail() {
   const { id } = useLocalSearchParams();
   const [donationDetails, setDonationDetails] = useState<CompleteDonation | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const baseURL = Platform.OS === 'ios' ? 'http://192.168.68.102:5000' : 'http://10.0.2.2:5000';
-
-
   useEffect(() => {
     const fetchDonationDetails = async () => {
       try {
-        console.log('Fetching from:', `${baseURL}/donations/details/${id}`);
-        const response = await fetch(`${baseURL}/donations/details/${id}`);
+        const response = await fetch(`${BASE_URL}/donations/details/${id}`);
         const data = await response.json();
-        console.log('Response:', data);
         setDonationDetails(data);
+        
       } catch (error) {
-        console.error('Full error:', error);
+        console.error('Error fetching donation details:', error);
+      } finally {
+        setLoading(false);
       }
     };
-
     if (id) fetchDonationDetails();
-    console.log(donationDetails)
+    //console.log(donationDetails)
   }, [id]);
-
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -35,7 +31,6 @@ export default function DonationDetail() {
       </View>
     );
   }
-
   if (!donationDetails) {
     return (
       <View style={styles.errorContainer}>
@@ -43,12 +38,10 @@ export default function DonationDetail() {
       </View>
     );
   }
-
   const {donation, donor, food_items, total_food_items } = donationDetails;
-
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Detalles de la donación</Text>
+    <ScrollView contentContainerStyle={[styles.container, { paddingBottom: 80 }]}> 
+      <Text style={styles.title}>Detalles de la donación</Text>  
       <Text style={styles.text}>ID: {donation.id}</Text>
       <Text style={styles.text}>Tipo: {donation.type || 'N/A'}</Text>
       <Text style={styles.text}>
@@ -56,9 +49,8 @@ export default function DonationDetail() {
       </Text>
       <Text style={styles.text}>Tiempo: {donation.time.split(':').slice(0, 2).join(':')}</Text>
       <Text style={styles.text}>Estatus: {donation.pending ? 'Pendiente' : 'Completada'}</Text>
-
       <Text style={styles.sectionTitle}>Información del donante</Text>
-      {donor && donor.length > 0 ? (
+      {donor && donor.length > 0 ? (  
         donor.map((d, index) => (
           <View key={index} style={styles.donorCard}>
             <Text style={styles.text}>Nombre: {d.name}</Text>
@@ -69,7 +61,6 @@ export default function DonationDetail() {
       ) : (
         <Text style={styles.text}>No donor information available.</Text>
       )}
-
       <Text style={styles.sectionTitle}>Alimentos</Text>
       {total_food_items > 0 ? (
         food_items.map((item, index) => (
@@ -84,10 +75,9 @@ export default function DonationDetail() {
     </ScrollView>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     padding: 20,
     backgroundColor: '#fff',
   },

@@ -15,6 +15,7 @@ import { useEffect, useRef, useState } from "react";
 import { Overlay } from "../../../components/Overlay";
 import DonationDetailsModal from "../../../components/DonationDetailsModal";
 import axios from "axios";
+import { BASE_URL } from "@/config";
 
 export default function QRScanner() {
   const [permission, requestPermission] = useCameraPermissions();
@@ -23,13 +24,11 @@ export default function QRScanner() {
   const [modalVisible, setModalVisible] = useState(false);
   const [donationDetails, setDonationDetails] = useState(null);
   const [scannedData, setScannedData] = useState<string | null>(null);
-
-  const baseURL = Platform.OS === 'ios' ? 'http://192.168.100.10:5000' : 'http://10.0.2.2:5000';
   
   const fetchDonationDetails = async (id: string) => {
     try {  
       setScannedData(id)
-      const response = await axios.get(`${baseURL}/donations/details/${id}/true`);
+      const response = await axios.get(`${BASE_URL}/donations/details/${id}/true`);
       setDonationDetails(response.data);
       console.log(donationDetails)
       setModalVisible(true);  
@@ -55,7 +54,7 @@ export default function QRScanner() {
   const handleConfirmDonation = async (id: string) => {
     setModalVisible(false);
     try {
-        await axios.put(`${baseURL}/donations/update`, {
+        await axios.put(`${BASE_URL}/donations/update`, {
         id: id,
         pending: false
       });

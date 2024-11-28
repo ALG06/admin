@@ -6,6 +6,7 @@ import Header from '@/components/Header';
 import axios from 'axios';
 import { useFocusEffect } from '@react-navigation/native';
 import { Link } from 'expo-router';
+import { BASE_URL } from '@/config';
 
 const StatusBadge = ({ active }: { active: boolean }) => {
   const getStatusColor = () => (active ? '#FFEBE9' : '#E6F4EA');
@@ -25,14 +26,12 @@ const DonationScreen = () => {
   const [showPending, setShowPending] = useState(true);
   const [loading, setLoading] = useState(true);
 
-  const baseURL = Platform.OS === 'ios' ? 'http://192.168.100.10:5000' : 'http://10.0.2.2:5000';
-
   // Fetch data from the endpoint
   useFocusEffect(
     React.useCallback(() => {
       const fetchDonations = async () => {
         try {
-          const response = await axios.get(`${baseURL}/donations/list`);
+          const response = await axios.get(`${BASE_URL}/donations/list`);
           setDonations(response.data);
         } catch (error) {
           console.error('Error fetching donations:', error);
